@@ -78,6 +78,10 @@ class App {
     return result;
   }
 
+  printResult(result) {
+    console.log(`결과: ${result}`);
+  }
+
   handleUnexpectedInput() {
     throw new Error("[ERROR] 잘못된 입력입니다.");
   }
@@ -91,6 +95,8 @@ class App {
 
     const numbers = this.splitBySeperator(parsedInputData.string, separators);
     const result = this.sumNumbers(numbers);
+
+    this.printResult(result);
   }
 
 }
