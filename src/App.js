@@ -70,6 +70,14 @@ class App {
     return numbers;
   }
 
+  /**
+   * 숫자의 합산 결과를 반환한다.
+   */
+  sumNumbers(numbers) {
+    const result = numbers.reduce((acc, curr) => acc + curr, 0);
+    return result;
+  }
+
   handleUnexpectedInput() {
     throw new Error("[ERROR] 잘못된 입력입니다.");
   }
@@ -82,8 +90,7 @@ class App {
     separators.push(parsedInputData.separator);
 
     const numbers = this.splitBySeperator(parsedInputData.string, separators);
-
-    console.log(numbers);
+    const result = this.sumNumbers(numbers);
   }
 
 }
