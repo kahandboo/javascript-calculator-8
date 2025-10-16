@@ -50,27 +50,22 @@ class App {
    * 분리한 문자를 숫자로 변환 후 배열에 저장해 반환한다.
    */
   splitBySeperator(string, separators) {
-    let numbers = []
+    const regex = new RegExp('[' + separators.join('') + ']+');
+    const parts = string.split(regex);
 
-    for (let idx=0; idx<string.length; idx++) {
-      const curr = string[idx];
-
-      if (isNaN(curr)) {
-        if (!separators.includes(curr)) {
-          this.handleUnexpectedInput();
-        } else {
-          continue
-        }
-      } else {
-        const number = Number(curr);
-        
-        if (number < 0) {
-          this.handleUnexpectedInput();
-        }
-
-        numbers.push(number);
+    const numbers = parts.map(part => {
+      const num = Number(part);
+    
+      if (isNaN(num)) {
+        this.handleUnexpectedInput();
       }
-    }
+    
+      if (num < 0) {
+        this.handleUnexpectedInput();
+      }
+    
+      return num; 
+    });
 
     return numbers;
   }
