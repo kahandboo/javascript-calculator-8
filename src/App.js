@@ -45,14 +45,50 @@ class App {
     };
   }
 
+  /**
+   * 구분자를 기준으로 입력 문자열을 분리한다.
+   * 분리한 문자를 숫자로 변환 후 배열에 저장해 반환한다.
+   */
+  splitBySeperator(string, separators) {
+    let numbers = []
+
+    for (let idx=0; idx<string.length; idx++) {
+      const curr = string[idx];
+
+      if (isNaN(curr)) {
+        if (!separators.includes(curr)) {
+          this.handleUnexpectedInput();
+        } else {
+          continue
+        }
+      } else {
+        const number = Number(curr);
+        
+        if (number < 0) {
+          this.handleUnexpectedInput();
+        }
+
+        numbers.push(number);
+      }
+    }
+
+    return numbers;
+  }
+
   handleUnexpectedInput() {
-    console.log("[ERROR]");
+    throw new Error("[ERROR] 잘못된 입력입니다.");
   }
 
   async run() {
     const userInputData = await this.getUserInput();
     const parsedInputData = this.parseCustomSeparator(userInputData);
-    
+
+    let separators = [',', ':'];
+    separators.push(parsedInputData.separator);
+
+    const numbers = this.splitBySeperator(parsedInputData.string, separators);
+
+    console.log(numbers);
   }
 
 }
