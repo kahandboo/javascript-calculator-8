@@ -47,7 +47,7 @@ class App {
 
   /**
    * 구분자를 기준으로 입력 문자열을 분리한다.
-   * 분리한 문자를 숫자로 변환 후 배열에 저장해 반환한다.
+   * 분리한 문자를 숫자로 변환하여 반환한다.
    */
   splitBySeperator(string, separators) {
     const regex = new RegExp('[' + separators.join('') + ']+');
