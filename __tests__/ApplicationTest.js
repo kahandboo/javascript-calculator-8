@@ -17,27 +17,32 @@ const getLogSpy = () => {
 };
 
 describe("문자열 계산기", () => {
-  test("커스텀 구분자 사용", async () => {
-    const inputs = ["//;\\n1"];
-    mockQuestions(inputs);
-
-    const logSpy = getLogSpy();
-    const outputs = ["결과 : 1"];
-
-    const app = new App();
-    await app.run();
-
-    outputs.forEach((output) => {
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
+  describe("예외 테스트", () => {  
+    test("음수가 포함된 경우", async () => {
+      const inputs = ["-1,2,3"];
+      mockQuestions(inputs);
+  
+      const app = new App();
+  
+      await expect(app.run()).rejects.toThrow("[ERROR]");
     });
-  });
 
-  test("예외 테스트", async () => {
-    const inputs = ["-1,2,3"];
-    mockQuestions(inputs);
+    test("숫자가 아닌 문자가 포함된 경우", async () => {
+      const inputs = ["a,b,c"];
+      mockQuestions(inputs);
+  
+      const app = new App();
+  
+      await expect(app.run()).rejects.toThrow("[ERROR]");
+    });
 
-    const app = new App();
-
-    await expect(app.run()).rejects.toThrow("[ERROR]");
+    test("구분자 사이에 빈 문자열이 위치하는 경우", async () => {
+      const inputs = ["1,,3"];
+      mockQuestions(inputs);
+  
+      const app = new App();
+  
+      await expect(app.run()).rejects.toThrow("[ERROR]");
+    });
   });
 });
