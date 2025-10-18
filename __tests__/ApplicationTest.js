@@ -16,251 +16,72 @@ const getLogSpy = () => {
   return logSpy;
 };
 
+const ERROR_CASES = [
+  ["음수 포함", "-1,2,3"],
+  ["숫자가 아닌 문자 포함", "a,b,3"],
+  ["커스텀 구분자 정의 시작이 '//'가 아님", "/?\\n1,2,3"],
+  ["커스텀 구분자 정의에 줄바꿈('\\n')이 없음", "//?n1,2,3"],
+  ["커스텀 구분자로 빈 문자열 지정", "//\\n1,2,3"],
+];
+
+const CUSTOM_DELIMITER_CASES = [
+  ["빈 문자열 입력", "//?\\n", 0],
+  ["숫자 없이 구분자만 존재", "//!\\n,,!:", 0],
+  ["커스텀과 기본 구분자 혼용 (쉼표만)", "//!\\n1!2,3", 6],
+  ["커스텀과 기본 구분자 혼용 (콜론만)", "//!\\n1!2:3:", 6],
+  ["기본 구분자 여러 개 사용", "//!\\n1,2:3,4:5", 15],
+  ["커스텀 구분자 하나만 사용", "//?\\n1?2?3", 6],
+  ["커스텀 구분자와 기본 구분자 혼용", "//!\\n1,2:3!4", 10],
+  ["커스텀 구분자로 공백이 지정", "// \\n1,2:3 4", 10],
+];
+
+const NO_CUSTOM_DELIMITER_CASES = [
+  ["빈 문자열", "", 0],
+  ["숫자 없이 구분자만 존재", ",,:", 0],
+  ["기본 구분자 중 쉼표만 사용", "1,2,3", 6],
+  ["기본 구분자 중 콜론만 사용", "1:2:3", 6],
+  ["기본 구분자 여러 개 사용", "1,2:3,4:5", 15],
+];
+
 describe("문자열 계산기", () => {
-  describe("예외 테스트", () => {  
-    test("음수가 포함", async () => {
-      const inputs = ["-1,2,3"];
-      mockQuestions(inputs);
-  
-      const app = new App();
-  
-      await expect(app.run()).rejects.toThrow("[ERROR]");
-    });
-
-    test("숫자가 아닌 문자가 포함", async () => {
-      const inputs = ["a,b,3"];
-      mockQuestions(inputs);
-  
-      const app = new App();
-  
-      await expect(app.run()).rejects.toThrow("[ERROR]");
-    });
-
-    test("문자열 시작이 '//'가 아님", async () => {
-      const inputs = ["/?\n1,2,3"];
-      mockQuestions(inputs);
-  
-      const app = new App();
-  
-      await expect(app.run()).rejects.toThrow("[ERROR]");
-    });
-
-    test("구분자 뒤에 '\\n'이 없음", async () => {
-      const inputs = ["//?n1,2,3"];
-      mockQuestions(inputs);
-  
-      const app = new App();
-  
-      await expect(app.run()).rejects.toThrow("[ERROR]");
-    });
-
-    test("커스텀 구분자로 빈 문자열 지정", async () => {
-      const inputs = ["//\n1,2,3"];
-      mockQuestions(inputs);
-  
-      const app = new App();
-  
-      await expect(app.run()).rejects.toThrow("[ERROR]");
-    });
+  describe("예외 테스트", () => {
+    test.each(ERROR_CASES)(
+      '[%s] 입력 "%s" -> 출력: [ERROR]',
+      async (description, input) => {
+        const app = new App();
+        mockQuestions([input]);
+        await expect(app.run()).rejects.toThrow("[ERROR]");
+      },
+    );
   });
 
   describe("커스텀 구분자가 있는 경우", () => {
-    test("빈 문자열 입력", async () => {
-      const inputs = ["//?\\n"];
-      mockQuestions(inputs);
+    test.each(CUSTOM_DELIMITER_CASES)(
+      '[%s] 입력 "%s" -> 출력: %s',
+      async (description, input, expectedSum) => {
+        const app = new App();
+        mockQuestions([input]);
+        const logSpy = getLogSpy();
+        await app.run();
 
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 0"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("숫자 없이 구분자만 존재", async () => {
-      const inputs = ["//;\\n,,;:"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 0"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("기본 구분자 중 쉼표만 사용", async () => {
-      const inputs = ["//;\\n1,2,3"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 6"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("기본 구분자 중 콜론만 사용", async () => {
-      const inputs = ["//;\\n1:2:3"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 6"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("기본 구분자 여러개 사용", async () => {
-      const inputs = ["//;\\n1,2:3,4:5"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 15"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("커스텀 구분자 하나만 사용", async () => {
-      const inputs = ["//;\\n1;2;3"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 6"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("커스텀 구분자와 기본 구분자 혼용", async () => {
-      const inputs = ["//;\\n1,2:3;4"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 10"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("커스텀 구분자로 공백이 지정", async () => {
-      const inputs = ["// \\n1,2:3 4"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 10"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
+        const expectedOutput = `결과 : ${expectedSum}`;
+        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(expectedOutput));
+      },
+    );
   });
 
   describe("커스텀 구분자가 없는 경우", () => {
-    test("빈 문자열이 입력된 경우", async () => {
-      const inputs = [""];
-      mockQuestions(inputs);
+    test.each(NO_CUSTOM_DELIMITER_CASES)(
+      '[%s] 입력 "%s" -> 출력: %s',
+      async (description, input, expectedSum) => {
+        const app = new App();
+        mockQuestions([input]);
+        const logSpy = getLogSpy();
+        await app.run();
 
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 0"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("숫자 없이 구분자만 존재", async () => {
-      const inputs = [",,:"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 0"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("기본 구분자 중 쉼표만 사용", async () => {
-      const inputs = ["1,2,3"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 6"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("기본 구분자 중 콜론만 사용", async () => {
-      const inputs = ["1:2:3"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 6"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
-    test("기본 구분자 여러개 사용", async () => {
-      const inputs = ["1,2:3,4:5"];
-      mockQuestions(inputs);
-
-      const logSpy = getLogSpy();
-      const outputs = ["결과 : 15"];
-
-      const app = new App();
-      await app.run();
-
-      outputs.forEach((output) => {
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-      });
-    });
-
+        const expectedOutput = `결과 : ${expectedSum}`;
+        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(expectedOutput));
+      },
+    );
   });
 });
