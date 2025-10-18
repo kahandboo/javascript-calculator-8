@@ -6,27 +6,22 @@ class App {
    * 커스텀 구분자가 존재하지 않는 경우엔 원본 문자열을 그대로 반환한다.
    */
   parseCustomSeparator(userInputData) {
-    if (userInputData.length < 5) {
+    const customPattern = /^\/\/(.)\\n(.*)$/; 
+    
+    const match = userInputData.match(customPattern);
+
+    if (match) {
+      const [, customSeparator, leftOver] = match;
+      
       return {
-        separator: "",
-        string: userInputData
+        separator: customSeparator,
+        string: leftOver
       };
     }
 
-    if (userInputData[0] !== '/' || userInputData[1] !== '/') {
-      this.handleUnexpectedInput(); 
-    }
-    
-    if (userInputData[3] !== '\\' || userInputData[4] !== 'n') {
-      this.handleUnexpectedInput(); 
-    }
-    
-    const customSeparator = userInputData[2];
-    const leftOver = userInputData.substring(5); 
-    
     return {
-      separator: customSeparator,
-      string: leftOver
+      separator: "", 
+      string: userInputData
     };
   }
 
@@ -64,7 +59,7 @@ class App {
   }
 
   printResult(result) {
-    console.log(`결과: ${result}`);
+    Console.print(`결과 : ${result}`);
   }
 
   handleUnexpectedInput() {
