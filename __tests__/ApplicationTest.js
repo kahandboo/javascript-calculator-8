@@ -18,7 +18,7 @@ const getLogSpy = () => {
 
 describe("문자열 계산기", () => {
   describe("예외 테스트", () => {  
-    test("음수가 포함된 경우", async () => {
+    test("음수가 포함", async () => {
       const inputs = ["-1,2,3"];
       mockQuestions(inputs);
   
@@ -27,8 +27,8 @@ describe("문자열 계산기", () => {
       await expect(app.run()).rejects.toThrow("[ERROR]");
     });
 
-    test("숫자가 아닌 문자가 포함된 경우", async () => {
-      const inputs = ["a,b,c"];
+    test("숫자가 아닌 문자가 포함", async () => {
+      const inputs = ["a,b,3"];
       mockQuestions(inputs);
   
       const app = new App();
@@ -36,8 +36,26 @@ describe("문자열 계산기", () => {
       await expect(app.run()).rejects.toThrow("[ERROR]");
     });
 
-    test("구분자 사이에 빈 문자열이 위치하는 경우", async () => {
-      const inputs = ["1,,3"];
+    test("문자열 시작이 '//'가 아님", async () => {
+      const inputs = ["/?\n1,2,3"];
+      mockQuestions(inputs);
+  
+      const app = new App();
+  
+      await expect(app.run()).rejects.toThrow("[ERROR]");
+    });
+
+    test("구분자 뒤에 '\\n'이 없음", async () => {
+      const inputs = ["//?n1,2,3"];
+      mockQuestions(inputs);
+  
+      const app = new App();
+  
+      await expect(app.run()).rejects.toThrow("[ERROR]");
+    });
+
+    test("커스텀 구분자로 빈 문자열 지정", async () => {
+      const inputs = ["//\n1,2,3"];
       mockQuestions(inputs);
   
       const app = new App();
