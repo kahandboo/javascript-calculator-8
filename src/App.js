@@ -1,21 +1,6 @@
-import * as readline from 'readline'; 
+import { Console } from "@woowacourse/mission-utils";
 
 class App {
-  getUserInput() {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    return new Promise((resolve) => {
-      rl.question('덧셈할 문자열을 입력하세요. \n', (input) => {
-        rl.close();
-        if (input.trim().length == 0) resolve("0");
-        else resolve(input.trim());
-      });
-    });
-  }
-
   /**
    * 입력 문자열에서 커스텀 구분자를 찾아낸다.
    * 커스텀 구분자가 존재하지 않는 경우엔 원본 문자열을 그대로 반환한다.
@@ -87,7 +72,7 @@ class App {
   }
 
   async run() {
-    const userInputData = await this.getUserInput();
+    const userInputData = await Console.readLineAsync("덧셈할 문자열을 입력하세요.\n");
     const parsedInputData = this.parseCustomSeparator(userInputData);
 
     let separators = [',', ':'];
