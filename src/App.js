@@ -7,6 +7,10 @@ class App {
    */
   parseCustomSeparator(userInputData) {
     const customPattern = /^\/\/(.)\\n(.*)$/; 
+
+    if (!customPattern.test(userInputData)) {
+      this.handleUnexpectedInput("커스텀 구분자 형식이 잘못됐습니다.");
+    }
     
     const match = userInputData.match(customPattern);
 
@@ -37,11 +41,11 @@ class App {
       const num = Number(part);
     
       if (isNaN(num)) {
-        this.handleUnexpectedInput();
+        this.handleUnexpectedInput("구분자와 숫자가 아닌 문자는 입력할 수 없습니다.");
       }
     
       if (num < 0) {
-        this.handleUnexpectedInput();
+        this.handleUnexpectedInput("음수는 입력할 수 없습니다.");
       }
     
       return num; 
@@ -62,8 +66,8 @@ class App {
     Console.print(`결과 : ${result}`);
   }
 
-  handleUnexpectedInput() {
-    throw new Error("[ERROR] 잘못된 입력입니다.");
+  handleUnexpectedInput(message) {
+    throw new Error("[ERROR]" + message);
   }
 
   async run() {
