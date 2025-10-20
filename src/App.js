@@ -6,6 +6,14 @@ class App {
    * 커스텀 구분자가 존재하지 않는 경우엔 원본 문자열을 그대로 반환한다.
    */
   parseCustomSeparator(userInputData) {
+    // 숫자, 빈 문자열, ',', ':' 로 시작하면 그대로 반환
+    if (/^(\d|,|:|$)/.test(userInputData)) { 
+      return {
+        separator: "",
+        string: userInputData
+      }
+    }
+
     const customPattern = /^\/\/(.)\\n(.*)$/; 
 
     if (!customPattern.test(userInputData)) {
@@ -22,11 +30,6 @@ class App {
         string: leftOver
       };
     }
-
-    return {
-      separator: "", 
-      string: userInputData
-    };
   }
 
   /**
